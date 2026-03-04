@@ -276,12 +276,25 @@ export class OpenAIConverter extends BaseConverter {
         }
 
         if (openaiRequest.tools?.length) {
-            claudeRequest.tools = openaiRequest.tools.map(t => ({
-                name: t.function.name,
-                description: t.function.description || '',
-                input_schema: t.function.parameters || { type: 'object', properties: {} }
-            }));
-            claudeRequest.tool_choice = this.buildClaudeToolChoice(openaiRequest.tool_choice);
+            claudeRequest.tools = openaiRequest.tools
+                .filter(t => t && ((t.function && t.function.name) || t.name))
+                .map(t => {
+                    if (t.function) {
+                        return {
+                            name: t.function.name,
+                            description: t.function.description || '',
+                            input_schema: t.function.parameters || { type: 'object', properties: {} }
+                        };
+                    }
+                    return {
+                        name: t.name,
+                        description: t.description || '',
+                        input_schema: t.input_schema || { type: 'object', properties: {} }
+                    };
+                });
+            if (claudeRequest.tools.length > 0) {
+                claudeRequest.tool_choice = this.buildClaudeToolChoice(openaiRequest.tool_choice);
+            }
         }
 
         // Optional passthrough: request-side "thinking" controls for Claude/Kiro.
