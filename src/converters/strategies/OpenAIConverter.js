@@ -275,7 +275,7 @@ export class OpenAIConverter extends BaseConverter {
             claudeRequest.system = extractText(systemInstruction.parts[0].text);
         }
 
-        console.log('[OpenAIConverter][toClaude] openaiRequest.tools:', JSON.stringify(openaiRequest.tools));
+        logger.info('[OpenAIConverter][toClaude] openaiRequest.tools:', JSON.stringify(openaiRequest.tools));
         if (openaiRequest.tools?.length) {
             claudeRequest.tools = openaiRequest.tools
                 .filter(t => t && t.function && t.function.name)
